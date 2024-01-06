@@ -1,6 +1,7 @@
 import csv
 import sys
 
+from datetime import datetime
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 
@@ -60,20 +61,52 @@ def load_data(filename):
     is 1 if Revenue is true, and 0 otherwise.
     """
     file_path = "./shopping.csv"
-    organized_data = tuple()
     evidence = []
     labels = []
+    intIndexes = [0,2,4,11,12,13,14]
+    floatIndexes = [1,3,5,6,7,8,9]
     with open(file_path, 'r') as file:
         reader = csv.reader(file)
+        next(reader)
         for row in reader:
             e = row[:17]
             l = row[-1]
+            # convert the label 
+            if l == "TRUE":
+                l = 1
+            else: 
+                l = 0
+            # convert the evidence (ints)
+            for index in intIndexes:
+                e[index] = int(e[index])
 
-    # loop over every row in the csv file
-        # evidence.append(currIndex[:16])    
-        # labels.append(currIndex[-1])
-    # return (evidence, labels)
-    raise NotImplementedError
+            # convert the evidence (floats)
+            for index in floatIndexes:
+                e[index] = float(e[index])
+
+            # convert the evidence (strings/months, visitor type, weekend)
+            if e[15] == "Returning_Visitor":
+                e[15] = 1
+            else:
+                e[15] = 0
+            
+            if e[16] == "TRUE":
+                e[16] = 1
+            else:
+                e[16] = 0
+            print(e[10])
+            # for some reason the data format for Jun is June and not Jun so we need to convert it so strptime can work (why ¯\_(ツ)_/¯)
+            if e[10] == "June":
+                e[10] = datetime.strptime("Jun", '%b').month
+            else:
+                e[10] = datetime.strptime(e[10], '%b').month
+
+            print(e)
+            print(l)
+            evidence.append(e)
+            labels.append(l)
+
+    return (evidence, labels)
 
 
 def train_model(evidence, labels):
