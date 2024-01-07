@@ -94,15 +94,13 @@ def load_data(filename):
                 e[16] = 1
             else:
                 e[16] = 0
-            print(e[10])
             # for some reason the data format for Jun is June and not Jun so we need to convert it so strptime can work (why ¯\_(ツ)_/¯)
             if e[10] == "June":
                 e[10] = datetime.strptime("Jun", '%b').month
             else:
                 e[10] = datetime.strptime(e[10], '%b').month
 
-            print(e)
-            print(l)
+            
             evidence.append(e)
             labels.append(l)
 
@@ -114,8 +112,8 @@ def train_model(evidence, labels):
     Given a list of evidence lists and a list of labels, return a
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
-    
-    raise NotImplementedError
+    ourClassifier = KNeighborsClassifier(n_neighbors=1,weights='distance',algorithm='auto',metric='cosine')
+    return ourClassifier.fit(evidence, labels)
 
 
 def evaluate(labels, predictions):
@@ -133,7 +131,26 @@ def evaluate(labels, predictions):
     representing the "true negative rate": the proportion of
     actual negative labels that were accurately identified.
     """
-    raise NotImplementedError
+    truePositive = 0
+    trueNegative = 0
+    totalPositive = 0
+    totalNegative = 0
+    for i in range(len(labels)):
+        if labels[i] == 1:
+            totalPositive += 1
+        if labels[i] == 0:
+            totalNegative += 1
+        if labels[i] == 1 and predictions[i] == 1:
+            truePositive += 1
+        if labels[i] == 0 and predictions[i] == 0:
+            trueNegative += 1
+
+    
+    sensitivity = truePositive / totalPositive
+    specificity = trueNegative / totalNegative
+    return (sensitivity, specificity)
+
+
 
 
 if __name__ == "__main__":
